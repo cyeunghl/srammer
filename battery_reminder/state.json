@@ -1,0 +1,36 @@
+{
+  "strava_tokens": {
+    "access_token": "b6be363b1aefada35342477fd49a90b1b154d8e0",
+    "refresh_token": "d429a14954b2ba6c5cea765a1e3ad338c9e4db8a",
+    "expires_at": 1764559240
+  },
+  "devices": {
+    "rear_axs": {
+      "name": "Rear Derailleur (AXS)",
+      "last_charged": "2025-11-30T21:22:38.773222",
+      "threshold_value": 500.0,
+      "threshold_unit": "miles",
+      "threshold_days": 30,
+      "current_usage": 0.0,
+      "last_sync_time": "2025-11-30T22:24:47.759216"
+    },
+    "front_axs": {
+      "name": "Front Derailleur (AXS)",
+      "last_charged": "2025-11-30T21:25:47.718557",
+      "threshold_value": 1000.0,
+      "threshold_unit": "miles",
+      "threshold_days": 60,
+      "current_usage": 0.0,
+      "last_sync_time": "2025-11-30T22:24:47.951499"
+    },
+    "power_meter": {
+      "name": "Power Meter",
+      "last_charged": "2025-11-30T21:22:49.829114",
+      "threshold_value": 200.0,
+      "threshold_unit": "hours",
+      "threshold_days": 60,
+      "current_usage": 0.0,
+      "last_sync_time": "2025-11-30T22:24:48.154496"
+    }
+  }
+}

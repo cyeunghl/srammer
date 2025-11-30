@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Activities - Battery Reminder{% endblock %}
+
+{% block content %}
+<h1>Strava Activities</h1>
+
+{% if not authenticated %}
+<div class="card">
+    <p>Please connect your Strava account to view activities.</p>
+    <a href="/login" class="btn-primary">Connect Strava</a>
+</div>
+{% else %}
+<div class="card">
+    <h3>Recent Activities (Last 30 Days)</h3>
+    {% if activities %}
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Distance</th>
+                <th>Moving Time</th>
+                <th>Affects Devices</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for activity in activities %}
+            <tr>
+                <td>{{ activity.start_date[:10] }}</td>
+                <td>{{ activity.name }}</td>
+                <td>{{ activity.type }}</td>
+                <td>{{ "%.2f"|format(activity.distance / 1609.34) }} mi</td>
+                <td>{{ (activity.moving_time / 3600)|round(2) }} hrs</td>
+                <td>
+                    {% for device_id, device in devices.items() %}
+                        {% if device.threshold_unit == 'miles' or device.threshold_unit == 'km' %}
+                            {% if activity.type in ['Ride', 'VirtualRide', 'EBikeRide'] %}
+                                <span style="display: inline-block; background: #e5e5e5; padding: 4px 8px; border-radius: 4px; margin: 2px; font-size: 12px;">{{ device.name }}</span>
+                            {% endif %}
+                        {% elif device.threshold_unit == 'hours' %}
+                            <span style="display: inline-block; background: #e5e5e5; padding: 4px 8px; border-radius: 4px; margin: 2px; font-size: 12px;">{{ device.name }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No activities found in the last 30 days.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>Device Mapping</h3>
+    <p>Activities are automatically tracked for devices based on activity type:</p>
+    <ul>
+        {% for device_id, device in devices.items() %}
+        <li>
+            <strong>{{ device.name }}</strong> ({{ device.threshold_unit }}):
+            {% if device.threshold_unit == 'hours' %}
+                All activities contribute to usage
+            {% else %}
+                Only cycling activities (Ride, VirtualRide, EBikeRide) contribute
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endblock %}
+

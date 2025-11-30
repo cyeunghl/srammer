@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Battery Reminder{% endblock %}
+
+{% block content %}
+<h1>Settings</h1>
+
+<form action="/update_settings" method="post">
+    <div class="card">
+        <h2>Reminder Settings</h2>
+        <p style="color: #4a4a4a; margin-bottom: 24px;">Configure when and how you receive battery reminders.</p>
+
+        <div class="form-group">
+            <label for="days_to_remind" class="form-label">Days to Charge Reminder</label>
+            <input 
+                type="number" 
+                id="days_to_remind" 
+                name="days_to_remind" 
+                class="form-input" 
+                value="{{ days_to_remind }}" 
+                min="1" 
+                max="365"
+                required
+            >
+            <p style="font-size: 13px; color: #4a4a4a; margin-top: 8px;">
+                Send a reminder if a device hasn't been charged in this many days, regardless of usage.
+            </p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Email Message Template</h2>
+        <p style="color: #4a4a4a; margin-bottom: 24px;">Customize the email message sent when a device needs charging.</p>
+
+        <div class="form-group">
+            <label for="email_message" class="form-label">Message Template</label>
+            <textarea 
+                id="email_message" 
+                name="email_message" 
+                class="form-input form-textarea"
+                required
+            >{{ email_message }}</textarea>
+            <p style="font-size: 13px; color: #4a4a4a; margin-top: 8px;">
+                Available variables: {device_name}, {current_usage}, {unit}, {threshold_value}, {last_charged}
+            </p>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <button type="submit" class="btn-primary">Save Settings</button>
+    </div>
+</form>
+
+<div style="margin-top: 40px; padding-top: 40px; border-top: 1px solid #e5e5e5;">
+    <div class="card">
+        <h2>Device-Bike Mapping</h2>
+        <p style="color: #4a4a4a; margin-bottom: 24px;">
+            Configure which bikes and activity types contribute to each device's usage tracking.
+            Activities from Hike, Walk, and Run are automatically excluded.
+        </p>
+        
+        {% if authenticated and bikes %}
+        <form action="/update_device_bikes" method="post">
+            {% for device_id, device in devices.items() %}
+            <div style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e5e5e5;">
+                <h3>{{ device.name }}</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Select Bikes (leave empty to track all bikes)</label>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 8px;">
+                        {% for bike in bikes %}
+                        <label style="display: flex; align-items: center; cursor: pointer; padding: 8px; border: 1px solid #e5e5e5; border-radius: 6px;">
+                            <input 
+                                type="checkbox" 
+                                name="{{ device_id }}_bikes" 
+                                value="{{ bike.id }}"
+                                {% set gear_ids = device.get('gear_ids', [])|map('string')|list %}
+                                {% if bike.id|string in gear_ids %}checked{% endif %}
+                                style="margin-right: 8px;"
+                            >
+                            <span>{{ bike.name }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <p style="font-size: 13px; color: #4a4a4a; margin-top: 8px;">
+                        If no bikes are selected, all cycling activities will be tracked.
+                    </p>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Activity Types</label>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 8px;">
+                        {% set default_types = ['Ride', 'VirtualRide', 'EBikeRide', 'GravelRide', 'MountainBikeRide'] %}
+                        {% set device_types = device.get('activity_types', ['Ride', 'VirtualRide', 'EBikeRide']) %}
+                        {% for act_type in default_types %}
+                        <label style="display: flex; align-items: center; cursor: pointer; padding: 8px; border: 1px solid #e5e5e5; border-radius: 6px;">
+                            <input 
+                                type="checkbox" 
+                                name="{{ device_id }}_activity_types" 
+                                value="{{ act_type }}"
+                                {% if act_type in device_types %}checked{% endif %}
+                                style="margin-right: 8px;"
+                            >
+                            <span>{{ act_type }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <button type="submit" class="btn-primary">Save Bike Mappings</button>
+        </form>
+        {% elif authenticated and not bikes %}
+        <p>No bikes found. Make sure you have bikes registered in your Strava account.</p>
+        {% else %}
+        <p>Please connect your Strava account to configure bike mappings.</p>
+        <a href="/login" class="btn-primary">Connect Strava</a>
+        {% endif %}
+    </div>
+</div>
+
+<div style="margin-top: 40px; padding-top: 40px; border-top: 1px solid #e5e5e5;">
+    <div class="card">
+        <h2>Email Testing</h2>
+        <p style="color: #4a4a4a; margin-bottom: 24px;">Test your email configuration to ensure reminders are sent correctly.</p>
+
+        <form action="/test_email" method="post">
+            <button type="submit" class="btn-secondary">Send Test Email</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

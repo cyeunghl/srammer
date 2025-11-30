@@ -1,0 +1,16 @@
+{
+  "strava_client_id": "166848",
+  "strava_client_secret": "28bf08e2372bc575a1d5b547afd44eacd947bf64",
+  "app_secret_key": "ca7e6b6a020527b68fa14f7a09898773cf2d42ff",
+  "email_settings": {
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 587,
+    "sender_email": "clarencehlyeung@gmail.com",
+    "sender_password": "boip zeyt amsb ahbs",
+    "recipient_email": "clarencehlyeung@gmail.com"
+  },
+  "reminder_settings": {
+    "days_to_remind": 30,
+    "email_message_template": "Your {device_name} has exceeded its threshold.\r\n\r\nCurrent Usage: {current_usage:.2f} {unit}\r\nThreshold: {threshold_value} {unit}\r\nLast Charged: {last_charged}\r\n\r\nPlease charge it soon!"
+  }
+}

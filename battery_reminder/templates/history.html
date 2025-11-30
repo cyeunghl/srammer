@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}History - Battery Reminder{% endblock %}
+
+{% block content %}
+<h1>Charge History</h1>
+
+{% if not authenticated %}
+<div class="card">
+    <p>Please connect your Strava account to view charge history.</p>
+    <a href="/login" class="btn-primary">Connect Strava</a>
+</div>
+{% else %}
+    {% for device_id, device in devices.items() %}
+    <div class="card">
+        <h3>{{ device.name }}</h3>
+        {% set device_history = history.get(device_id, []) %}
+        {% if device_history %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Charge Date</th>
+                    <th>Days Since Previous</th>
+                    <th>Usage at Charge</th>
+                    <th>Average Days per Charge</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in device_history|reverse %}
+                <tr>
+                    <td>{{ entry.charged_at[:10] }}</td>
+                    <td>{{ entry.days_between }} days</td>
+                    <td>{{ "%.2f"|format(entry.usage_at_charge) }} {{ entry.unit }}</td>
+                    <td>
+                        {% if loop.index > 1 %}
+                            {% if device_history|length > 1 %}
+                                {% set total = device_history|sum(attribute='days_between') %}
+                                {% set avg_days = total / (device_history|length - 1) %}
+                                {{ "%.1f"|format(avg_days) }} days
+                            {% else %}
+                                -
+                            {% endif %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if device_history|length > 1 %}
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5e5;">
+            <p><strong>Total Charge Cycles:</strong> {{ device_history|length }}</p>
+            {% set total_days = device_history|sum(attribute='days_between') %}
+            {% set avg_days = total_days / (device_history|length - 1) if device_history|length > 1 else 0 %}
+            <p><strong>Average Days Between Charges:</strong> {{ "%.1f"|format(avg_days) }} days</p>
+        </div>
+        {% endif %}
+        {% else %}
+        <p>No charge history yet. Mark a device as charged to start tracking.</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
